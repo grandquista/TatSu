@@ -115,7 +115,7 @@ class ParseContext(object):
         self._state = None
         self._lookahead = 0
 
-        self._recursive_rules = set()
+        self._recursive_keys = set()
         self._clear_memoizetion_caches()
 
     def _reset(self,
@@ -468,7 +468,7 @@ class ParseContext(object):
         memo = self._memos.get(key)
 
         if isinstance(memo, FailedLeftRecursion):
-            self._set_recursive(key.name)
+            self._set_recursive(key)
             memo = self._results.get(key, memo)
 
         return memo
@@ -481,18 +481,15 @@ class ParseContext(object):
             node = closure(node)
         self._results[key] = self._mkresult(node)
 
-    def _is_recursive(self, name):
-        return self.left_recursion and name in self._recursive_rules
+    def _is_recursive(self, key):
+        return self.left_recursion and key in self._recursive_keys
 
-    def _set_recursive(self, name):
+    def _set_recursive(self, key):
         if self.left_recursion:
-            # add rules that are mutually recursive
-            i = self._rule_stack.index(name)
-            for rule in reversed(self._rule_stack[i:]):
-                self._recursive_rules.add(rule)
+            self._recursive_keys.add(key)
 
     def _unset_recursive(self, name):
-        self._recursive_rules -= {name}
+        self._recursive_keys -= {name}
 
     def _set_left_recursion_guard(self, key):
         ex = self._make_exception(key.name, exclass=FailedLeftRecursion)
@@ -541,16 +538,13 @@ class ParseContext(object):
 
         if not self.left_recursion:
             return result
-        if not self._is_recursive(ruleinfo.name):
-            return result
 
-        while self._pos > lastpos:
+        while self._pos > lastpos and self._is_recursive(key):
             self._next_token(ruleinfo)
-
-            self._save_result(self.memokey, result.node)
+            key = self.memokey
+            self._save_result(key, result.node)
             try:
                 lastpos = self._pos
-                key = self.memokey
                 result = self._invoke_rule(ruleinfo, key)
             except FailedParse:
                 # del self._recursion_cache[key]

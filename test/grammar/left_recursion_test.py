@@ -203,7 +203,7 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar, "test")
         ast = model.parse("this", trace=trace, colorize=True)
         self.assertEqual('this', ast)
-        ast = model.parse("this.x", trace=True, colorize=True)
+        ast = model.parse("this.x", trace=trace, colorize=True)
         self.assertEqual(['this', '.', 'x'], ast)
         ast = model.parse("this.x.y", trace=trace, colorize=True)
         self.assertEqual([['this', '.', 'x'], '.', 'y'], ast)
@@ -297,9 +297,9 @@ class LeftRecursionTests(unittest.TestCase):
         '''
         model = compile(grammar=grammar)
         model.parse('3', trace=trace, colorize=True)
-        model.parse('3 - 2', trace=True, colorize=True)
+        model.parse('3 - 2', trace=trace, colorize=True)
         model.parse('(3 - 2)', trace=trace, colorize=True)
-        model.parse('(3 - 2) - 1', trace=trace, colorize=True)
+        model.parse('(3 - 2) - 1', trace=True, colorize=True)
         model.parse('3 - 2 - 1', trace=trace, colorize=True)
         model.parse('3 - (2 - 1)', trace=trace, colorize=True)
 
