@@ -110,6 +110,12 @@ def parse_args():
         metavar='CHARACTERS',
         help='characters to skip during parsing (use "" to disable)',
     )
+    generation_opts.add_argument(
+        '--python3', '-3',
+        metavar='PYTHON3',
+        help='allow output grammar to expect python3',
+        action='store_true',
+    )
 
     std_args = argparser.add_argument_group('common options')
     std_args.add_argument(
